@@ -1,26 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { Hero } from "@/components/home/Hero";
+import { CategoryStrip } from "@/components/home/CategoryStrip";
+import { ProductGrid } from "@/components/product/ProductGrid";
+import { fetchCategories, fetchTrendingProducts } from "@/lib/queries";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
+function Index() {
+  const cats = useQuery({ queryKey: ["categories"], queryFn: fetchCategories });
+  const trending = useQuery({ queryKey: ["trending"], queryFn: fetchTrendingProducts });
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="mx-auto max-w-7xl space-y-16 px-4 py-8 sm:px-6 sm:py-10">
+      <Hero />
+      <CategoryStrip categories={cats.data ?? []} />
+      <section>
+        <h2 className="mb-6 text-2xl font-bold">Trending now</h2>
+        <ProductGrid products={trending.data ?? []} loading={trending.isLoading} />
+      </section>
     </div>
   );
-}
-
-function Index() {
-  return <PlaceholderIndex />;
 }
