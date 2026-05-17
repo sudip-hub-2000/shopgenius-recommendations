@@ -28,9 +28,11 @@ type PaymentMethod = "card" | "upi" | "cod";
 function CheckoutPage() {
   const cart = useCart();
   const { user } = useAuth();
+  const qc = useQueryClient();
   const [step, setStep] = useState<"details" | "success">("details");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const [isPaying, setIsPaying] = useState(false);
+  const [lastOrderId, setLastOrderId] = useState<string | null>(null);
 
   if (!user) {
     return (
@@ -64,12 +66,52 @@ function CheckoutPage() {
   const tax = cart.subtotal * 0.08;
   const total = cart.subtotal + shipping + tax;
 
-  const handlePay = () => {
+  const handlePay = async () => {
     setIsPaying(true);
-    setTimeout(() => {
+    try {
+      const { data: order, error: orderErr } = await supabase
+        .from("orders")
+        .insert({
+          user_id: user.id,
+          subtotal: cart.subtotal,
+          shipping,
+          tax,
+          total,
+          payment_method: paymentMethod,
+          status: "placed",
+        })
+        .select("id")
+        .single();
+      if (orderErr) throw orderErr;
+
+      const items = cart.items.map((it) => ({
+        order_id: order.id,
+        product_id: it.product_id,
+        product_name: it.product.name,
+        product_image: it.product.image_url,
+        unit_price: it.product.discount_price ?? it.product.price,
+        quantity: it.quantity,
+      }));
+      const { error: itemsErr } = await supabase
+        .from("order_items")
+        .insert(items);
+      if (itemsErr) throw itemsErr;
+
+      // Clear cart
+      await supabase.from("cart_items").delete().eq("user_id", user.id);
+      qc.invalidateQueries({ queryKey: ["cart"] });
+      qc.invalidateQueries({ queryKey: ["orders"] });
+
+      setLastOrderId(order.id);
+      // Simulate processing delay
+      setTimeout(() => {
+        setIsPaying(false);
+        setStep("success");
+      }, 1200);
+    } catch (e) {
       setIsPaying(false);
-      setStep("success");
-    }, 2000);
+      toast.error(e instanceof Error ? e.message : "Payment failed");
+    }
   };
 
   if (step === "success") {
