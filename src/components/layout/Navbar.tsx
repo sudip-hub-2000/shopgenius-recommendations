@@ -7,6 +7,7 @@ import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useAuth } from "@/hooks/use-auth";
 import { searchProducts, logSearch } from "@/lib/queries";
+import { trackEvent } from "@/lib/track";
 import type { Product } from "@/lib/types";
 import { formatPrice } from "@/lib/format";
 import { CartSidebar } from "./CartSidebar";
@@ -65,6 +66,7 @@ export function Navbar() {
     const term = q.trim();
     if (!term) return;
     if (user) logSearch(user.id, term);
+    trackEvent("search", { query: term });
     navigate({ to: "/search", search: { q: term } });
   };
 
