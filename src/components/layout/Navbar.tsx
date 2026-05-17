@@ -145,6 +145,9 @@ export function Navbar() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
+                    <Link to="/orders">My Orders</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link to="/wishlist">Wishlist</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
