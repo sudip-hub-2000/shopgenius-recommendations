@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Heart, ShoppingCart, Star, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,6 +9,8 @@ import { formatPrice, discountPercent } from "@/lib/format";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { RecommendationRail } from "@/components/product/RecommendationRail";
+import { useRecommendations } from "@/hooks/use-recommendations";
+import { trackEvent } from "@/lib/track";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/product/$id")({
@@ -25,6 +28,11 @@ function ProductPage() {
     enabled: !!product.data,
     queryFn: () => fetchRecommendations(product.data!),
   });
+  const personalized = useRecommendations(8);
+
+  useEffect(() => {
+    if (product.data) trackEvent("view", { productId: product.data.id });
+  }, [product.data]);
 
   if (product.isLoading) {
     return (
@@ -84,7 +92,10 @@ function ProductPage() {
             <Button
               size="lg"
               className="flex-1 bg-gradient-violet text-white shadow-glow hover:opacity-90"
-              onClick={() => cart.add.mutate(p.id)}
+              onClick={() => {
+                cart.add.mutate(p.id);
+                trackEvent("cart_add", { productId: p.id });
+              }}
               disabled={cart.add.isPending}
             >
               <ShoppingCart className="mr-2 h-5 w-5" /> Add to cart
@@ -92,7 +103,10 @@ function ProductPage() {
             <Button
               size="lg"
               variant="outline"
-              onClick={() => wishlist.toggle.mutate(p.id)}
+              onClick={() => {
+                wishlist.toggle.mutate(p.id);
+                if (!isWishlisted) trackEvent("wishlist_add", { productId: p.id });
+              }}
               className={cn(isWishlisted && "border-primary text-primary")}
             >
               <Heart className={cn("mr-2 h-5 w-5", isWishlisted && "fill-primary")} />
@@ -109,6 +123,7 @@ function ProductPage() {
       </div>
 
       <RecommendationRail products={recs.data ?? []} title="Similar products" />
+      <RecommendationRail products={personalized.data ?? []} title="Recommended for you" />
     </div>
   );
 }
