@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "@/lib/track";
 
 export function ProductCard({ product }: { product: Product }) {
   const cart = useCart();
@@ -16,7 +17,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <div className="group relative flex flex-col rounded-xl bg-gradient-card border border-border/40 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-glow hover:border-primary/50">
-      <Link to="/product/$id" params={{ id: product.id }} className="relative block aspect-square overflow-hidden bg-muted/30">
+      <Link to="/product/$id" params={{ id: product.id }} onClick={() => trackEvent("click", { productId: product.id })} className="relative block aspect-square overflow-hidden bg-muted/30">
         <img
           src={product.image_url}
           alt={product.name}
@@ -32,6 +33,7 @@ export function ProductCard({ product }: { product: Product }) {
           onClick={(e) => {
             e.preventDefault();
             wishlist.toggle.mutate(product.id);
+            if (!isWishlisted) trackEvent("wishlist_add", { productId: product.id });
           }}
           aria-label="Toggle wishlist"
           className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full glass transition-colors hover:bg-primary/20"
@@ -57,7 +59,10 @@ export function ProductCard({ product }: { product: Product }) {
         <Button
           size="sm"
           className="mt-auto bg-gradient-violet text-white shadow-glow hover:opacity-90"
-          onClick={() => cart.add.mutate(product.id)}
+          onClick={() => {
+            cart.add.mutate(product.id);
+            trackEvent("cart_add", { productId: product.id });
+          }}
           disabled={cart.add.isPending}
         >
           <ShoppingCart className="mr-2 h-4 w-4" />

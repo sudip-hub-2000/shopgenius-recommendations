@@ -18,6 +18,7 @@ import { formatPrice } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/track";
 
 export const Route = createFileRoute("/checkout")({
   component: CheckoutPage,
@@ -101,6 +102,12 @@ function CheckoutPage() {
       await supabase.from("cart_items").delete().eq("user_id", user.id);
       qc.invalidateQueries({ queryKey: ["cart"] });
       qc.invalidateQueries({ queryKey: ["orders"] });
+      qc.invalidateQueries({ queryKey: ["recommendations"] });
+
+      // Track each purchased item to power future recommendations
+      cart.items.forEach((it) =>
+        trackEvent("purchase", { productId: it.product_id }),
+      );
 
       setLastOrderId(order.id);
       // Simulate processing delay
