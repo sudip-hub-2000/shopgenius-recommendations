@@ -83,10 +83,12 @@ function CartPage() {
           <span>Total</span>
           <span className="text-gradient">{formatPrice(total)}</span>
         </div>
-        <Button className="w-full bg-gradient-violet text-white shadow-glow hover:opacity-90">
-          Checkout
-        </Button>
-        <p className="text-xs text-muted-foreground text-center">Demo — checkout not implemented.</p>
+        <Link to="/checkout" className="block">
+          <Button className="w-full bg-gradient-violet text-white shadow-glow hover:opacity-90">
+            Checkout
+          </Button>
+        </Link>
+        <p className="text-xs text-muted-foreground text-center">Mock payment page</p>
       </aside>
     </div>
   );
