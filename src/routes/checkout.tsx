@@ -130,12 +130,22 @@ function CheckoutPage() {
           <p className="text-2xl font-bold text-gradient">
             {formatPrice(total)}
           </p>
+          {lastOrderId && (
+            <p className="mt-2 font-mono text-xs text-muted-foreground">
+              Order #{lastOrderId.slice(0, 8).toUpperCase()}
+            </p>
+          )}
         </div>
-        <Link to="/">
-          <Button className="mt-8 bg-gradient-violet text-white shadow-glow">
-            Continue shopping
-          </Button>
-        </Link>
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link to="/orders">
+            <Button className="bg-gradient-violet text-white shadow-glow">
+              View my orders
+            </Button>
+          </Link>
+          <Link to="/">
+            <Button variant="outline">Continue shopping</Button>
+          </Link>
+        </div>
       </div>
     );
   }
