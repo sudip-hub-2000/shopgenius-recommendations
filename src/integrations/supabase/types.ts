@@ -150,6 +150,44 @@ export type Database = {
         }
         Relationships: []
       }
+      product_events: {
+        Row: {
+          created_at: string
+          event_type: Database["public"]["Enums"]["product_event_type"]
+          id: string
+          product_id: string | null
+          query: string | null
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          created_at?: string
+          event_type: Database["public"]["Enums"]["product_event_type"]
+          id?: string
+          product_id?: string | null
+          query?: string | null
+          user_id: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string
+          event_type?: Database["public"]["Enums"]["product_event_type"]
+          id?: string
+          product_id?: string | null
+          query?: string | null
+          user_id?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_events_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category_id: string | null
@@ -297,6 +335,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_recommendations: {
+        Args: { _limit?: number; _user_id: string }
+        Returns: {
+          category_id: string | null
+          created_at: string
+          description: string | null
+          discount_price: number | null
+          id: string
+          image_url: string
+          name: string
+          price: number
+          rating: number
+          stock: number
+          tags: string[]
+          trending: boolean
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "products"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -309,6 +370,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      product_event_type:
+        | "view"
+        | "click"
+        | "search"
+        | "cart_add"
+        | "wishlist_add"
+        | "purchase"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -437,6 +505,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      product_event_type: [
+        "view",
+        "click",
+        "search",
+        "cart_add",
+        "wishlist_add",
+        "purchase",
+      ],
     },
   },
 } as const
