@@ -4,12 +4,13 @@ import { useEffect } from "react";
 import { Heart, ShoppingCart, Star, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchProductById, fetchRecommendations } from "@/lib/queries";
+import { fetchProductById, fetchRecommendations, fetchTrendingProducts } from "@/lib/queries";
 import { formatPrice, discountPercent } from "@/lib/format";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { RecommendationRail } from "@/components/product/RecommendationRail";
 import { useRecommendations } from "@/hooks/use-recommendations";
+import { useDummyJsonProducts, useFakeStoreProducts, useOpenFoodProducts } from "@/hooks/use-external-products";
 import { trackEvent } from "@/lib/track";
 import { cn } from "@/lib/utils";
 
