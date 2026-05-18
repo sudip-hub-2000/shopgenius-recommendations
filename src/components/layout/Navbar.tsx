@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Search, ShoppingCart, Heart, User, LogOut, Sparkles } from "lucide-react";
+import { Search, ShoppingCart, Heart, User, LogOut, Sparkles, ShieldCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useAuth } from "@/hooks/use-auth";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import { searchProducts, logSearch } from "@/lib/queries";
 import { trackEvent } from "@/lib/track";
 import type { Product } from "@/lib/types";
@@ -26,6 +27,7 @@ export function Navbar() {
   const [cartOpen, setCartOpen] = useState(false);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const isAdmin = useIsAdmin();
   const cart = useCart();
   const wishlist = useWishlist();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -149,6 +151,11 @@ export function Navbar() {
                   <DropdownMenuItem asChild>
                     <Link to="/orders">My Orders</Link>
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin Panel</Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem asChild>
                     <Link to="/wishlist">Wishlist</Link>
                   </DropdownMenuItem>
