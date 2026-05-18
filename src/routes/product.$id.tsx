@@ -30,6 +30,10 @@ function ProductPage() {
     queryFn: () => fetchRecommendations(product.data!),
   });
   const personalized = useRecommendations(8);
+  const trending = useQuery({ queryKey: ["trending"], queryFn: fetchTrendingProducts });
+  const dummyJson = useDummyJsonProducts(8);
+  const fakeStore = useFakeStoreProducts(8);
+  const openFood = useOpenFoodProducts(8);
 
   useEffect(() => {
     if (product.data) trackEvent("view", { productId: product.data.id });
