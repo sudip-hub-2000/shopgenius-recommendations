@@ -13,7 +13,8 @@ export function ProductCard({ product }: { product: Product }) {
   const wishlist = useWishlist();
   const discount = discountPercent(product.price, product.discount_price);
   const finalPrice = product.discount_price ?? product.price;
-  const isWishlisted = wishlist.ids.has(product.id);
+  const isExternal = product.id.startsWith("ext-");
+  const isWishlisted = !isExternal && wishlist.ids.has(product.id);
 
   return (
     <div className="group relative flex flex-col rounded-xl bg-gradient-card border border-border/40 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-glow hover:border-primary/50">
