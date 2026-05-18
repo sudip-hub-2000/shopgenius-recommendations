@@ -129,6 +129,10 @@ function ProductPage() {
 
       <RecommendationRail products={recs.data ?? []} title="Similar products" />
       <RecommendationRail products={personalized.data ?? []} title="Recommended for you" />
+      <RecommendationRail products={(trending.data ?? []).filter((x) => x.id !== p.id).slice(0, 8)} title="Trending now" />
+      <RecommendationRail products={dummyJson.data ?? []} title="More from our catalog" />
+      <RecommendationRail products={fakeStore.data ?? []} title="Discover from FakeStore" />
+      <RecommendationRail products={openFood.data ?? []} title="Grocery & food picks" />
     </div>
   );
 }
