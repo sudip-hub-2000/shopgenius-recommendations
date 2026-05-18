@@ -6,6 +6,11 @@ import { ProductGrid } from "@/components/product/ProductGrid";
 import { RecommendationRail } from "@/components/product/RecommendationRail";
 import { fetchCategories, fetchTrendingProducts } from "@/lib/queries";
 import { useRecommendations } from "@/hooks/use-recommendations";
+import {
+  useDummyJsonProducts,
+  useFakeStoreProducts,
+  useOpenFoodProducts,
+} from "@/hooks/use-external-products";
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/")({
@@ -17,9 +22,12 @@ function Index() {
   const cats = useQuery({ queryKey: ["categories"], queryFn: fetchCategories });
   const trending = useQuery({ queryKey: ["trending"], queryFn: fetchTrendingProducts });
   const personalized = useRecommendations(12);
+  const dummyJson = useDummyJsonProducts(12);
+  const fakeStore = useFakeStoreProducts(8);
+  const openFood = useOpenFoodProducts(8);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-16 px-4 py-8 sm:px-6 sm:py-10">
+    <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 sm:py-10">
       <Hero />
       <CategoryStrip categories={cats.data ?? []} />
       {user && (
@@ -32,6 +40,9 @@ function Index() {
         <h2 className="mb-6 text-2xl font-bold">Trending now</h2>
         <ProductGrid products={trending.data ?? []} loading={trending.isLoading} />
       </section>
+      <RecommendationRail products={dummyJson.data ?? []} title="Fresh arrivals" />
+      <RecommendationRail products={fakeStore.data ?? []} title="Discover from FakeStore" />
+      <RecommendationRail products={openFood.data ?? []} title="Grocery & food picks" />
     </div>
   );
 }
