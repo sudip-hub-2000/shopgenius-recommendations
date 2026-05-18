@@ -4,9 +4,9 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p>
-            <span className="text-gradient font-bold">ShopVerse</span> — Personalized shopping, reimagined.
+            <span className="text-gradient font-bold">TechNova</span> — Personalized shopping, reimagined.
           </p>
-          <p>© {new Date().getFullYear()} ShopVerse. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} TechNova. All rights reserved.</p>
         </div>
       </div>
     </footer>

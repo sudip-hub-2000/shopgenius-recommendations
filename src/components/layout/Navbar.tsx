@@ -78,7 +78,7 @@ export function Navbar() {
             <div className="grid h-9 w-9 place-items-center rounded-lg bg-gradient-violet shadow-glow">
               <Sparkles className="h-5 w-5 text-white" />
             </div>
-            <span className="hidden text-xl text-gradient sm:inline">ShopVerse</span>
+            <span className="hidden text-xl text-gradient sm:inline">TechNova</span>
           </Link>
 
           <form ref={wrapperRef as any} onSubmit={submit} className="relative flex-1 max-w-xl">
