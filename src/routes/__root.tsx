@@ -53,8 +53,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ShopVerse — Personalized Shopping" },
-      { name: "description", content: "Modern e-commerce with AI-style product recommendations." },
+      { title: "TechNova — Personalized Shopping" },
+      { name: "description", content: "TechNova: modern e-commerce with AI-style product recommendations." },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),

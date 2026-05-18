@@ -4,12 +4,13 @@ import { useEffect } from "react";
 import { Heart, ShoppingCart, Star, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchProductById, fetchRecommendations } from "@/lib/queries";
+import { fetchProductById, fetchRecommendations, fetchTrendingProducts } from "@/lib/queries";
 import { formatPrice, discountPercent } from "@/lib/format";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { RecommendationRail } from "@/components/product/RecommendationRail";
 import { useRecommendations } from "@/hooks/use-recommendations";
+import { useDummyJsonProducts, useFakeStoreProducts, useOpenFoodProducts } from "@/hooks/use-external-products";
 import { trackEvent } from "@/lib/track";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +30,10 @@ function ProductPage() {
     queryFn: () => fetchRecommendations(product.data!),
   });
   const personalized = useRecommendations(8);
+  const trending = useQuery({ queryKey: ["trending"], queryFn: fetchTrendingProducts });
+  const dummyJson = useDummyJsonProducts(8);
+  const fakeStore = useFakeStoreProducts(8);
+  const openFood = useOpenFoodProducts(8);
 
   useEffect(() => {
     if (product.data) trackEvent("view", { productId: product.data.id });
@@ -124,6 +129,10 @@ function ProductPage() {
 
       <RecommendationRail products={recs.data ?? []} title="Similar products" />
       <RecommendationRail products={personalized.data ?? []} title="Recommended for you" />
+      <RecommendationRail products={(trending.data ?? []).filter((x) => x.id !== p.id).slice(0, 8)} title="Trending now" />
+      <RecommendationRail products={dummyJson.data ?? []} title="More from our catalog" />
+      <RecommendationRail products={fakeStore.data ?? []} title="Discover from FakeStore" />
+      <RecommendationRail products={openFood.data ?? []} title="Grocery & food picks" />
     </div>
   );
 }
