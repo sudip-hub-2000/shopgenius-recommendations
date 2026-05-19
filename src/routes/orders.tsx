@@ -33,22 +33,41 @@ type OrderRow = {
 function OrdersPage() {
   const { user, loading: authLoading } = useAuth();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ["orders", user?.id],
     enabled: !!user,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<OrderRow[]> => {
       const { data, error } = await supabase
         .from("orders")
         .select(
           "id,total,subtotal,shipping,tax,payment_method,status,created_at,order_items(id,product_id,product_name,product_image,unit_price,quantity)",
         )
+        .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data as unknown as OrderRow[]) ?? [];
     },
   });
 
-  if (!authLoading && !user) {
+  // Show a loading state while auth is rehydrating after a hard refresh
+  // so we don't flash the "Sign in" CTA to already-signed-in users.
+  if (authLoading) {
+    return (
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+        <Skeleton className="mb-6 h-8 w-40" />
+        <div className="space-y-4">
+          {[1, 2].map((i) => (
+            <Skeleton key={i} className="h-40 w-full rounded-2xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
     return (
       <div className="mx-auto max-w-md p-12 text-center">
         <ShoppingBag className="mx-auto mb-4 h-12 w-12 text-primary" />
@@ -61,6 +80,8 @@ function OrdersPage() {
       </div>
     );
   }
+
+  const showLoading = isLoading || isFetching;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
