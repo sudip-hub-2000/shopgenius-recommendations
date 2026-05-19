@@ -90,7 +90,7 @@ function OrdersPage() {
         <h1 className="text-2xl font-bold">My Orders</h1>
       </div>
 
-      {isLoading ? (
+      {showLoading && !data ? (
         <div className="space-y-4">
           {[1, 2].map((i) => (
             <Skeleton key={i} className="h-40 w-full rounded-2xl" />
