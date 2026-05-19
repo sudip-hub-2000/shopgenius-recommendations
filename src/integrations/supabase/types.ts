@@ -188,6 +188,50 @@ export type Database = {
           },
         ]
       }
+      product_reviews: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          product_id: string
+          rating: number
+          title: string | null
+          updated_at: string
+          user_id: string
+          verified_purchase: boolean
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          product_id: string
+          rating: number
+          title?: string | null
+          updated_at?: string
+          user_id: string
+          verified_purchase?: boolean
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          product_id?: string
+          rating?: number
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+          verified_purchase?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category_id: string | null
@@ -335,6 +379,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_product_review_stats: {
+        Args: { _product_id: string }
+        Returns: {
+          avg_rating: number
+          count_1: number
+          count_2: number
+          count_3: number
+          count_4: number
+          count_5: number
+          total: number
+        }[]
+      }
       get_user_recommendations: {
         Args: { _limit?: number; _user_id: string }
         Returns: {

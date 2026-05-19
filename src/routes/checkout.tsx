@@ -68,6 +68,11 @@ function CheckoutPage() {
   const total = cart.subtotal + shipping + tax;
 
   const handlePay = async () => {
+    if (isPaying) return; // guard against double-submit
+    if (cart.items.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
     setIsPaying(true);
     try {
       const { data: order, error: orderErr } = await supabase

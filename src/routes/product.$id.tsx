@@ -9,6 +9,7 @@ import { formatPrice, discountPercent } from "@/lib/format";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { RecommendationRail } from "@/components/product/RecommendationRail";
+import { ProductReviews } from "@/components/product/ProductReviews";
 import { useRecommendations } from "@/hooks/use-recommendations";
 import { useDummyJsonProducts, useFakeStoreProducts, useOpenFoodProducts } from "@/hooks/use-external-products";
 import { trackEvent } from "@/lib/track";
@@ -126,6 +127,8 @@ function ProductPage() {
           </div>
         </div>
       </div>
+
+      <ProductReviews productId={p.id} />
 
       <RecommendationRail products={recs.data ?? []} title="Similar products" />
       <RecommendationRail products={personalized.data ?? []} title="Recommended for you" />
