@@ -5,12 +5,15 @@ import { formatPrice, discountPercent } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/track";
+import { toast } from "sonner";
 
 export function ProductCard({ product }: { product: Product }) {
   const cart = useCart();
   const wishlist = useWishlist();
+  const isAdmin = useIsAdmin();
   const discount = discountPercent(product.price, product.discount_price);
   const finalPrice = product.discount_price ?? product.price;
   const isExternal = product.id.startsWith("ext-");
@@ -51,6 +54,7 @@ export function ProductCard({ product }: { product: Product }) {
           <button
             onClick={(e) => {
               e.preventDefault();
+              if (isAdmin) { toast.error("Admin accounts can't shop"); return; }
               wishlist.toggle.mutate(product.id);
               if (!isWishlisted) trackEvent("wishlist_add", { productId: product.id });
             }}

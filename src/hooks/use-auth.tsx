@@ -19,14 +19,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const checkActive = async (s: Session | null) => {
+      if (!s?.user) return true;
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("is_active")
+          .eq("id", s.user.id)
+          .maybeSingle();
+        if (data && data.is_active === false) {
+          await supabase.auth.signOut();
+          const { toast } = await import("sonner");
+          toast.error("Your account has been deactivated. Contact support.");
+          return false;
+        }
+      } catch {
+        // ignore — fail open
+      }
+      return true;
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
       setUser(s?.user ?? null);
+      if (s) {
+        setTimeout(() => {
+          checkActive(s).then((ok) => {
+            if (!ok) {
+              setSession(null);
+              setUser(null);
+            }
+          });
+        }, 0);
+      }
     });
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
       setSession(data.session);
       setUser(data.session?.user ?? null);
       setLoading(false);
+      if (data.session) {
+        const ok = await checkActive(data.session);
+        if (!ok) {
+          setSession(null);
+          setUser(null);
+        }
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
