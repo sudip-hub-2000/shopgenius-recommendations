@@ -54,6 +54,7 @@ export function ProductCard({ product }: { product: Product }) {
           <button
             onClick={(e) => {
               e.preventDefault();
+              if (isAdmin) { toast.error("Admin accounts can't shop"); return; }
               wishlist.toggle.mutate(product.id);
               if (!isWishlisted) trackEvent("wishlist_add", { productId: product.id });
             }}
