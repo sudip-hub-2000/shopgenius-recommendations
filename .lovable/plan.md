@@ -1,83 +1,50 @@
-# E-Commerce Recommendation System — Build Plan
+## 1. User Feedback Page (`/feedback`)
+- New `feedback` table (id, user_id, category, subject, message, rating 1–5, status: `new|reviewed|resolved`, admin_notes, created_at).
+- RLS: users insert + view their own; admins view/update/delete all.
+- New route `src/routes/feedback.tsx` with a form (category dropdown, subject, message, optional star rating) using Zod validation, plus a list of the user's past submissions with status badges.
+- Add "Feedback" link in Navbar (visible to signed-in non-admins) and Footer.
 
-A production-style storefront with auth, cart, wishlist, search with autocomplete, and "you might also like" recommendations. Violet→black gradient theme, fully responsive.
+## 2. Admin User Management
+- Add `is_active boolean default true` to `profiles`. Sign-in flow checks this flag and signs the user out with a "Your account has been deactivated" toast if false.
+- Server functions (admin-gated via service-role client + `has_role` check):
+  - `setUserActive({ userId, active })` — toggles `profiles.is_active`.
+  - `deleteUser({ userId })` — removes the auth user (cascades cart/wishlist/orders via existing FKs where present; otherwise cleans related rows explicitly).
+- Upgrade the Users table on `/admin`: add Status column, "Deactivate/Activate" and "Delete" buttons with confirm dialogs, search by name/email.
 
-## 1. Backend (Lovable Cloud / Postgres)
+## 3. Admin Feedback Management
+- New tab/section on `/admin` listing all feedback (newest first), filterable by status.
+- Admin can change status (`new → reviewed → resolved`), add internal notes, and delete entries.
 
-Enable Lovable Cloud, then create these tables with RLS:
+## 4. Restrict Admins From Shopping
+- Add `useIsAdmin()` checks that block admin accounts from:
+  - Adding to cart / wishlist (button shows "Admins can't shop" toast and is disabled).
+  - Visiting `/cart`, `/checkout`, `/wishlist`, `/orders` — redirect to `/admin` with a toast.
+- On login, if the user is an admin, redirect to `/admin` instead of `/`.
+- Hide Cart / Wishlist / Orders nav items for admins; show only Admin link + Logout.
 
-- `profiles` — id (FK auth.users), display_name, avatar_url. Auto-created via trigger on signup.
-- `user_roles` — separate table with `app_role` enum + `has_role()` SECURITY DEFINER function (prevents privilege escalation).
-- `categories` — id, slug, name, image_url.
-- `products` — id, name, description, price, discount_price, image_url, category_id, tags[], rating, stock. Trigram GIN index on `name` for fast ILIKE search.
-- `cart_items` — user_id, product_id, quantity (unique per user+product).
-- `wishlist_items` — user_id, product_id (unique).
-- `search_history` — user_id, query, created_at (for future personalization).
+## 5. Bug Fixes & Error Handling
+- Wrap all new Supabase calls in try/catch with `toast.error(...)` and friendly messages.
+- Add an `errorComponent` to the new `/feedback` route and to `/admin` so failures show a retry UI instead of a blank screen.
+- Ensure deactivated users can't call protected mutations: server functions re-check `is_active` before acting.
+- Fix the existing admin link visibility (currently always rendered) to only show for admins.
 
-**RLS:** users access only their own cart/wishlist/history/profile. Products + categories are public read.
+## Technical notes
+- Migrations: new `feedback` table + RLS, `profiles.is_active`, helper function `is_account_active(uuid)` used by triggers/policies as needed.
+- Server functions live in `src/lib/admin.functions.ts` (thin file, only `createServerFn` exports) using `supabaseAdmin` after verifying caller has `admin` role via `requireSupabaseAuth` context.
+- No new external deps; reuse existing shadcn `AlertDialog`, `Select`, `Badge`, `Tabs`.
 
-**Seed:** 6 categories (Electronics, Fashion, Home, Books, Beauty, Sports) × 4 products = 24 products with real image URLs.
+```text
+DB
+├── feedback (new)
+└── profiles.is_active (new column)
 
-**Auth:** email/password with auto-confirm signup enabled.
+Routes
+├── /feedback              (user)
+└── /admin                 (extended: Users tab + Feedback tab)
 
-## 2. Frontend (TanStack Router + Tailwind + shadcn)
-
-### Design system (`src/styles.css`)
-- Theme tokens: violet (`oklch(0.55 0.25 295)`) → deep black background.
-- Gradient tokens: `--gradient-primary` (violet→black), `--gradient-glow`, `--shadow-elegant`.
-- Glass surfaces (backdrop-blur), custom button variants (`hero`, `glass`).
-- Dark theme by default.
-
-### Routes
-- `/` — Hero, CategoryStrip, Trending products grid.
-- `/search?q=...` — results + "You might also like" (same category + tag overlap).
-- `/product/$id` — detail page + similar products.
-- `/category/$slug` — category browse.
-- `/cart` — full cart with quantity controls + order summary.
-- `/wishlist` — saved items.
-- `/login`, `/signup` — auth pages.
-- `/_authenticated/*` layout for protected routes (cart, wishlist).
-
-### Components
-- `Navbar` — sticky glass, debounced autocomplete (hits Postgres ILIKE via server fn), cart + wishlist badges, user menu.
-- `ProductCard` — hover lift, discount badge, wishlist heart toggle, "Add to cart" button.
-- `CartSidebar` — slide-in sheet triggered from navbar.
-- `Hero`, `CategoryStrip`, `TrendingGrid`, `RecommendationRail`.
-- Loading skeletons + Sonner toasts for all actions.
-
-### State
-- TanStack Query for products/cart/wishlist (cache + invalidation).
-- Auth context wired through router with `onAuthStateChange` listener.
-
-## 3. Recommendation logic
-
-Server fn `getRecommendations(productId)`:
-1. Fetch source product's category + tags.
-2. Query products in same category, score by tag overlap, exclude self.
-3. Return top 8.
-
-## 4. Folder structure
-
+Server fns (admin-only)
+├── setUserActive
+├── deleteUser
+├── setFeedbackStatus
+└── deleteFeedback
 ```
-src/
-  components/
-    layout/      (Navbar, Footer, CartSidebar)
-    product/     (ProductCard, ProductGrid, RecommendationRail)
-    home/        (Hero, CategoryStrip, TrendingGrid)
-    ui/          (shadcn)
-  lib/
-    products.functions.ts
-    cart.functions.ts
-    wishlist.functions.ts
-    search.functions.ts
-  hooks/         (useAuth, useCart, useWishlist)
-  routes/        (file-based)
-```
-
-## 5. Technical notes
-- Uses Lovable Cloud (Supabase under the hood) — no external API keys needed.
-- All product images use Unsplash URLs (no upload step required).
-- Server functions protected with `requireSupabaseAuth` for cart/wishlist.
-- Public product queries use the browser supabase client (RLS allows public read).
-
-This is a large first version — I'll build it focused and clean, and you can iterate from there.
