@@ -70,6 +70,45 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          admin_notes: string | null
+          category: Database["public"]["Enums"]["feedback_category"]
+          created_at: string
+          id: string
+          message: string
+          rating: number | null
+          status: Database["public"]["Enums"]["feedback_status"]
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          category?: Database["public"]["Enums"]["feedback_category"]
+          created_at?: string
+          id?: string
+          message: string
+          rating?: number | null
+          status?: Database["public"]["Enums"]["feedback_status"]
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          category?: Database["public"]["Enums"]["feedback_category"]
+          created_at?: string
+          id?: string
+          message?: string
+          rating?: number | null
+          status?: Database["public"]["Enums"]["feedback_status"]
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -291,18 +330,21 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          is_active: boolean
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
           id: string
+          is_active?: boolean
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
+          is_active?: boolean
         }
         Relationships: []
       }
@@ -426,6 +468,14 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      feedback_category:
+        | "general"
+        | "bug"
+        | "feature_request"
+        | "complaint"
+        | "praise"
+        | "other"
+      feedback_status: "new" | "reviewed" | "resolved"
       product_event_type:
         | "view"
         | "click"
@@ -561,6 +611,15 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      feedback_category: [
+        "general",
+        "bug",
+        "feature_request",
+        "complaint",
+        "praise",
+        "other",
+      ],
+      feedback_status: ["new", "reviewed", "resolved"],
       product_event_type: [
         "view",
         "click",
