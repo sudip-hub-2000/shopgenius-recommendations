@@ -79,7 +79,9 @@ export const setFeedbackStatus = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
-    const patch: Record<string, unknown> = { status: data.status };
+    const patch: { status: "new" | "reviewed" | "resolved"; admin_notes?: string } = {
+      status: data.status,
+    };
     if (data.admin_notes !== undefined) patch.admin_notes = data.admin_notes;
     const { error } = await supabaseAdmin
       .from("feedback")
