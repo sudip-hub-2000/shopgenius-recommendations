@@ -51,25 +51,17 @@ export const deleteUserAccount = createServerFn({ method: "POST" })
       throw new Error("You cannot delete your own account");
     }
     // Clean dependent rows that lack FK cascades
-    const tables = [
-      "cart_items",
-      "wishlist_items",
-      "product_events",
-      "search_history",
-      "product_reviews",
-      "feedback",
-      "order_items",
-      "orders",
-      "user_roles",
-      "profiles",
-    ] as const;
-    for (const t of tables) {
-      // order_items has no user_id — handled below
-      if (t === "order_items") continue;
-      const col = t === "profiles" ? "id" : "user_id";
-      await supabaseAdmin.from(t).delete().eq(col, data.userId);
-    }
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
+    const uid = data.userId;
+    await supabaseAdmin.from("cart_items").delete().eq("user_id", uid);
+    await supabaseAdmin.from("wishlist_items").delete().eq("user_id", uid);
+    await supabaseAdmin.from("product_events").delete().eq("user_id", uid);
+    await supabaseAdmin.from("search_history").delete().eq("user_id", uid);
+    await supabaseAdmin.from("product_reviews").delete().eq("user_id", uid);
+    await supabaseAdmin.from("feedback").delete().eq("user_id", uid);
+    await supabaseAdmin.from("orders").delete().eq("user_id", uid);
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", uid);
+    await supabaseAdmin.from("profiles").delete().eq("id", uid);
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(uid);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
