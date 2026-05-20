@@ -117,24 +117,28 @@ export function Navbar() {
           </form>
 
           <div className="flex items-center gap-1">
-            <Link to="/wishlist">
-              <Button variant="ghost" size="icon" className="relative">
-                <Heart className="h-5 w-5" />
-                {wishlist.count > 0 && (
-                  <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-                    {wishlist.count}
-                  </span>
-                )}
-              </Button>
-            </Link>
-            <Button variant="ghost" size="icon" className="relative" onClick={() => setCartOpen(true)}>
-              <ShoppingCart className="h-5 w-5" />
-              {cart.count > 0 && (
-                <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-                  {cart.count}
-                </span>
-              )}
-            </Button>
+            {!isAdmin && (
+              <>
+                <Link to="/wishlist">
+                  <Button variant="ghost" size="icon" className="relative">
+                    <Heart className="h-5 w-5" />
+                    {wishlist.count > 0 && (
+                      <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                        {wishlist.count}
+                      </span>
+                    )}
+                  </Button>
+                </Link>
+                <Button variant="ghost" size="icon" className="relative" onClick={() => setCartOpen(true)}>
+                  <ShoppingCart className="h-5 w-5" />
+                  {cart.count > 0 && (
+                    <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                      {cart.count}
+                    </span>
+                  )}
+                </Button>
+              </>
+            )}
 
             {user ? (
               <DropdownMenu>
@@ -148,20 +152,26 @@ export function Navbar() {
                     {user.email}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/orders">My Orders</Link>
-                  </DropdownMenuItem>
-                  {isAdmin && (
+                  {isAdmin ? (
                     <DropdownMenuItem asChild>
                       <Link to="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin Panel</Link>
                     </DropdownMenuItem>
+                  ) : (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/orders">My Orders</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/wishlist">Wishlist</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/cart">Cart</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/feedback">Send Feedback</Link>
+                      </DropdownMenuItem>
+                    </>
                   )}
-                  <DropdownMenuItem asChild>
-                    <Link to="/wishlist">Wishlist</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/cart">Cart</Link>
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => signOut()}>
                     <LogOut className="mr-2 h-4 w-4" /> Sign out
